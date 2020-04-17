@@ -13,13 +13,35 @@ namespace Tetris
 {
     class Program
     {
+        // game state
+        private static bool isOver;
+        private static bool isDrawRequired;
+
         // time handle
         private static double timeScale = 1;
-        private static bool isOver;
         private static int estimatedFps;
         private static double timePerFrame;
-        private static double timeElapsedSinceLastUpdate;
-        private static double timeBeforeUpdateStatistics;
+        
+        private static double timeElapsedSinceLastStatisticsUpdate;
+        private static double timeToUpdateStatistics;
+
+        private static double timeToMove;
+        private static double timeElapsedSinceLastMove;
+
+        // layout
+        private static int leftMarginWidth;
+
+        // cup data
+        private static int cupWidth;
+        private static int cupHeight;
+        private static int fallSpeed;
+        private static Cup cup;
+
+        // figures data
+        private static Figure currentFigure;
+        private static Figure nextFigure;
+
+        static int cntr = 0;
 
         private static void Main(string[] args)
         {
@@ -31,11 +53,50 @@ namespace Tetris
 
         private static void Init()
         {
+            #region game state
             isOver = false;
+            isDrawRequired = true;
+
+            #endregion // game state
+
+            #region time
+            timeToMove = 0;
             estimatedFps = 60;
             timePerFrame = 1.0 / estimatedFps;
-            timeElapsedSinceLastUpdate = 0.0;
-            timeBeforeUpdateStatistics = 0.7;
+            timeElapsedSinceLastStatisticsUpdate = 0.0;
+            timeToUpdateStatistics = 0.7;
+            timeElapsedSinceLastMove = 0;
+
+            #endregion // time
+
+            #region layout
+
+            Console.ForegroundColor = ConsoleColor.White;
+
+            leftMarginWidth = 20;
+
+            #endregion // layout
+
+            #region cup initialization
+            do
+            {
+                Console.WriteLine("Cup Width: ");
+            } while (!int.TryParse(Console.ReadLine(), out cupWidth));
+
+            do
+            {
+                Console.WriteLine("Cup Height: ");
+            } while (!int.TryParse(Console.ReadLine(), out cupHeight));
+
+            do
+            {
+                Console.WriteLine("Fall Speed: ");
+            } while (!int.TryParse(Console.ReadLine(), out fallSpeed));
+
+            timeToMove = 60 / fallSpeed;
+
+            cup = new Cup(cupWidth, cupHeight, leftMarginWidth);
+            #endregion
 
         }
 
@@ -46,12 +107,20 @@ namespace Tetris
 
             while (!isOver)
             {
-                double deltaTime = globalTimer.Elapsed.TotalSeconds * timeScale;
+                double deltaTime = globalTimer.Elapsed.TotalSeconds;
                 globalTimer.Restart();
+                int fps = (int)(1 / deltaTime);
 
                 HandleEvents();
                 Update(deltaTime);
-                Draw();
+
+                if (isDrawRequired)
+                {
+                    Draw();
+                    isDrawRequired = false;
+                }
+
+                //double timeToWait = timePerFrame - deltaTime;
             }
         }
 
@@ -60,6 +129,7 @@ namespace Tetris
             Console.Clear();
 
             // draw objects
+            cup.Draw();
         }
 
         private static void HandleEvents()
@@ -68,18 +138,27 @@ namespace Tetris
 
         private static void Update(double deltaTime)
         {
-            UpdateStatistics(deltaTime);
+            //UpdateStatistics(deltaTime);
+
+            timeElapsedSinceLastMove += deltaTime;
+
+            if (timeElapsedSinceLastMove > timeToMove)
+            {
+                Console.Write(timeElapsedSinceLastMove);
+                timeElapsedSinceLastMove = 0;
+
+                isDrawRequired = true;
+            }
+                
         }
 
         private static void UpdateStatistics(double deltaTime)
         {
-            timeElapsedSinceLastUpdate += deltaTime;
+            timeElapsedSinceLastStatisticsUpdate += deltaTime;
 
-            if (timeElapsedSinceLastUpdate >= timeBeforeUpdateStatistics)
+            if (timeElapsedSinceLastStatisticsUpdate >= timeToUpdateStatistics)
             {
-                timeElapsedSinceLastUpdate = 0.0;
-
-                // draw fps and other stuff
+                timeElapsedSinceLastStatisticsUpdate = 0.0;
             }
         }
     }
