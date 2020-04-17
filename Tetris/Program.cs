@@ -93,7 +93,7 @@ namespace Tetris
                 Console.WriteLine("Fall Speed: ");
             } while (!int.TryParse(Console.ReadLine(), out fallSpeed));
 
-            timeToMove = 60 / fallSpeed;
+            timeToMove = 60.0 / fallSpeed;
 
             cup = new Cup(cupWidth, cupHeight, leftMarginWidth);
             #endregion
@@ -102,26 +102,37 @@ namespace Tetris
 
         private static void MainLoop()
         {
-            Stopwatch globalTimer = new Stopwatch();
-            globalTimer.Start();
+            System.Timers.Timer t = new System.Timers.Timer(1000);
+            t.Elapsed += T_Elapsed;
+            t.Enabled = true;
+            t.Start();
+
+            DateTime prev = DateTime.Now, curr;
 
             while (!isOver)
             {
-                double deltaTime = globalTimer.Elapsed.TotalSeconds;
-                globalTimer.Restart();
-                int fps = (int)(1 / deltaTime);
+                curr = DateTime.Now;
+                double deltaTime = (curr - prev).TotalSeconds;
+                prev = curr;
 
                 HandleEvents();
                 Update(deltaTime);
 
                 if (isDrawRequired)
                 {
+                    Console.WriteLine("Drawing...");
                     Draw();
                     isDrawRequired = false;
                 }
 
                 //double timeToWait = timePerFrame - deltaTime;
             }
+        }
+
+        private static void T_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            //isDrawRequired = true;
+            Console.WriteLine("a second has passed");
         }
 
         private static void Draw()
@@ -144,7 +155,6 @@ namespace Tetris
 
             if (timeElapsedSinceLastMove > timeToMove)
             {
-                Console.Write(timeElapsedSinceLastMove);
                 timeElapsedSinceLastMove = 0;
 
                 isDrawRequired = true;
