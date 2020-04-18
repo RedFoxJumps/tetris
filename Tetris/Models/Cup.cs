@@ -6,13 +6,22 @@ using System.Threading.Tasks;
 
 namespace Models
 {
-    class Cup
+    public class Cup
     {
         public int Width { get; set; }
         public int Height { get; set; }
         public int LeftMarginWidth { get; set; }
-        public bool[,] Items { get; set; }
+        public int[,] Items { get; set; }
         public string LeftMargin => new string(' ', LeftMarginWidth);
+
+        public List<Figure> Figures { get; set; }
+
+
+        public int this[int i, int j]
+        {
+            get => Items[i, j];
+            set => Items[i, j] = value;
+        }
 
         public Cup() : this (0, 0) 
         { }
@@ -22,17 +31,24 @@ namespace Models
             Width = w;
             Height = h;
             LeftMarginWidth = leftMargin;
-            Items = new bool[w, h];
+            Items = new int[w, h];
+
+        }
+
+        public void Update()
+        {
+
         }
 
         public void Draw()
         {
             Console.WriteLine(LeftMargin + "┌" + new string(' ', Width) + "┐");
             for (int i = 0; i < Height; i++)
-            {
                 Console.WriteLine(LeftMargin + "|" + new string(' ', Width) + "|");
-            }
+
             Console.WriteLine(LeftMargin + "└" + new string('-', Width) + "┘");
+
+
         }
 
     }

@@ -5,7 +5,7 @@ using System.Text;
 using System.Timers;
 using System.Threading.Tasks;
 using System.Diagnostics;
-using System.Threading;
+using System.Timers;
 
 using Models;
 
@@ -80,17 +80,17 @@ namespace Tetris
             #region cup initialization
             do
             {
-                Console.WriteLine("Cup Width: ");
+                Console.WriteLine("Field Width: ");
             } while (!int.TryParse(Console.ReadLine(), out cupWidth));
 
             do
             {
-                Console.WriteLine("Cup Height: ");
+                Console.WriteLine("Field Height: ");
             } while (!int.TryParse(Console.ReadLine(), out cupHeight));
 
             do
             {
-                Console.WriteLine("Fall Speed: ");
+                Console.WriteLine("Fall Speed (squares per minute): ");
             } while (!int.TryParse(Console.ReadLine(), out fallSpeed));
 
             timeToMove = 60.0 / fallSpeed;
@@ -102,7 +102,7 @@ namespace Tetris
 
         private static void MainLoop()
         {
-            System.Timers.Timer t = new System.Timers.Timer(1000);
+            Timer t = new Timer(1000);
             t.Elapsed += T_Elapsed;
             t.Enabled = true;
             t.Start();
@@ -120,12 +120,9 @@ namespace Tetris
 
                 if (isDrawRequired)
                 {
-                    Console.WriteLine("Drawing...");
                     Draw();
                     isDrawRequired = false;
                 }
-
-                //double timeToWait = timePerFrame - deltaTime;
             }
         }
 
