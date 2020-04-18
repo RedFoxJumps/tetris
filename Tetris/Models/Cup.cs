@@ -37,18 +37,17 @@ namespace Models
 
         public void Update()
         {
-
+            
         }
 
         public void Draw()
         {
-            Console.WriteLine(LeftMargin + "┌" + new string(' ', Width) + "┐");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine(LeftMargin + "┌" + new string('—', Width) + "┐");
             for (int i = 0; i < Height; i++)
                 Console.WriteLine(LeftMargin + "|" + new string(' ', Width) + "|");
 
-            Console.WriteLine(LeftMargin + "└" + new string('-', Width) + "┘");
-
-
+            Console.WriteLine(LeftMargin + "└" + new string('—', Width) + "┘");
         }
 
     }

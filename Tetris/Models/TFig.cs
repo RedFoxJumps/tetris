@@ -8,39 +8,46 @@ namespace Models
 {
     public class TFig : Figure
     {
-        public TFig() : this (0)
+
+        public TFig() : this(0, 0, 0)
         { }
 
-        public TFig(int margin) : base(1, 1, margin)
+        public TFig(int x, int y, int margin) : base(1, 1, margin)
         {
             FigureColor = ConsoleColor.Yellow;
 
-            Points = new int[4, 4]
+            X = x;
+            Y = y;  
+
+            Points = new int[3, 3]
             {
-                { 0, 0, 0, 0 },
-                { 1, 1, 1, 0 },
-                { 0, 1, 0, 0 },
-                { 0, 0, 0, 0 }
+                { 0, 0, 0 },
+                { 1, 1, 1 },
+                { 0, 1, 0 },
             };
         }
 
         public override void Draw()
         {
+            Console.ForegroundColor = FigureColor;
+            for (int i = 0; i < Rows; i++) 
+            {
+                for (int j = 0; j < Columns; j++)  
+                {
+                    if (Points[i, j] == 0)
+                        continue;
 
-        }
-
-        public override void Rotate()
-        {
-        }
-
-        public override void Stop()
-        {
-
+                    Console.CursorLeft = X + LeftMarginWidth + j + 1;
+                    Console.CursorTop = Y + i + 1;
+                    Console.Write(Square);
+                }
+            }
         }
 
         public override void Update(Cup cup)
         {
-
+            Y += 1;
+            RotateRight();
         }
     }
 }
