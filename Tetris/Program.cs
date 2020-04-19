@@ -16,6 +16,8 @@ namespace Tetris
         // game state
         private static bool isOver;
         private static bool isDrawRequired;
+        private static bool rotateRight;
+        private static bool rotateLeft;
 
         // time handle
         private static double timeScale = 1;
@@ -48,7 +50,6 @@ namespace Tetris
             Init();
             MainLoop();
             Console.WriteLine("Game over. Press enter to exit.");
-            Console.Read();
         }
 
         private static void Init()
@@ -56,6 +57,8 @@ namespace Tetris
             #region game state
             isOver = false;
             isDrawRequired = true;
+            rotateLeft = false;
+            rotateRight = false;
 
             #endregion // game state
 
@@ -72,7 +75,6 @@ namespace Tetris
             #region layout
 
             Console.ForegroundColor = ConsoleColor.White;
-
             leftMarginWidth = 20;
 
             #endregion // layout
@@ -98,16 +100,24 @@ namespace Tetris
             cup = new Cup(cupWidth, cupHeight, leftMarginWidth);
             #endregion
 
+            #region console
+            Console.CursorVisible = false;
+            
+            #endregion // console
+
+            currentFigure = new TFig(5, 2, leftMarginWidth);
         }
 
         private static void MainLoop()
         {
-            Timer t = new Timer(1000);
-            t.Elapsed += T_Elapsed;
-            t.Enabled = true;
+            Timer t = new Timer { Interval = timeToMove * 1000, Enabled = true };
+            t.Elapsed += TimerTick;
             t.Start();
 
             DateTime prev = DateTime.Now, curr;
+
+            System.Threading.Thread thread = new System.Threading.Thread(HandleEvents);
+            thread.Start();
 
             while (!isOver)
             {
@@ -115,48 +125,83 @@ namespace Tetris
                 double deltaTime = (curr - prev).TotalSeconds;
                 prev = curr;
 
-                HandleEvents();
-                Update(deltaTime);
 
+
+                Update(deltaTime);
                 if (isDrawRequired)
                 {
                     Draw();
                     isDrawRequired = false;
                 }
             }
+
+            thread.Abort();
         }
 
-        private static void T_Elapsed(object sender, ElapsedEventArgs e)
+        private static void TimerTick(object sender, ElapsedEventArgs e)
         {
-            //isDrawRequired = true;
-            Console.WriteLine("a second has passed");
+            isDrawRequired = true;
         }
 
         private static void Draw()
         {
             Console.Clear();
 
-            // draw objects
+            // draw main field
             cup.Draw();
+
+            // draw other figures
+            currentFigure.Draw();
         }
 
         private static void HandleEvents()
         {
+            while (true)
+            {
+                var key = Console.ReadKey(true).Key;
+
+                switch (key)
+                {
+                    case ConsoleKey.Q:
+                        currentFigure.TryRotateLeft(cup);
+                        isDrawRequired = true;
+                        Console.WriteLine($"draw req {isDrawRequired}");
+                        break;
+
+                    case ConsoleKey.E:
+                        isDrawRequired = true;
+                        currentFigure.TryRotateRight(cup);
+                        Console.WriteLine($"draw req {isDrawRequired}"); 
+                        break;
+
+
+                    case ConsoleKey.A:
+                        break;
+                    case ConsoleKey.D:
+                        break;
+
+
+                    case ConsoleKey.S:
+                        currentFigure.Update(cup);
+                        break;
+
+                    default:
+                        break;
+                }
+            }
         }
 
         private static void Update(double deltaTime)
         {
-            //UpdateStatistics(deltaTime);
 
             timeElapsedSinceLastMove += deltaTime;
-
-            if (timeElapsedSinceLastMove > timeToMove)
+            if (timeElapsedSinceLastMove >= timeToMove)
             {
                 timeElapsedSinceLastMove = 0;
-
                 isDrawRequired = true;
+
+                currentFigure.Update(cup);
             }
-                
         }
 
         private static void UpdateStatistics(double deltaTime)
