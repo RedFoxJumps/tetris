@@ -43,8 +43,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\Cup.cs" />
+    <Compile Include="Models\Field.cs" />
     <Compile Include="Models\Figure.cs" />
+    <Compile Include="Models\FigureEventStateArgs.cs" />
     <Compile Include="Models\TFig.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

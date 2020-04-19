@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models
 {
-    public class Cup
+    public class Field
     {
         public int Width { get; set; }
         public int Height { get; set; }
@@ -23,10 +23,10 @@ namespace Models
             set => Items[i, j] = value;
         }
 
-        public Cup() : this (0, 0) 
+        public Field() : this (0, 0) 
         { }
 
-        public Cup(int w, int h, int leftMargin = 0)
+        public Field(int w, int h, int leftMargin = 0)
         {
             Width = w;
             Height = h;
