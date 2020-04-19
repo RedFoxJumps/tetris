@@ -14,13 +14,10 @@ namespace Models
         public int[,] Items { get; set; }
         public string LeftMargin => new string(' ', LeftMarginWidth);
 
-        public List<Figure> Figures { get; set; }
-
-
-        public int this[int i, int j]
+        public int this[int x, int y]
         {
-            get => Items[i, j];
-            set => Items[i, j] = value;
+            get => Items[x, y];
+            set => Items[x, y] = value;
         }
 
         public Field() : this (0, 0) 
@@ -33,6 +30,14 @@ namespace Models
             LeftMarginWidth = leftMargin;
             Items = new int[w, h];
 
+        }
+
+        public bool IsPointEligible(int x, int y)
+        {
+            if (x > Width || y > Height || x < 0 || y < 0)
+                return false;
+
+            return Items[x, y] == 0;
         }
 
         public void Update()
