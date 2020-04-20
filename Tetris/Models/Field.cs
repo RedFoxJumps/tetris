@@ -65,7 +65,29 @@ namespace Models
         /// </summary>
         public void Update()
         {
-            
+            for (int i = Height - 1; i > 0; i--)
+            {
+                for (int j = 0; j < Width; j++)
+                {
+                    // the whole row is non-zero
+                    if (Items[i, j] == 0)
+                        break;
+
+                    if (j != Width - 1)
+                        continue;
+
+                    // shift a row
+                    for (int k = i; k > 0; k--)
+                    {
+                        for (int l = 0; l < Width; l++)
+                        {
+                            Items[k, l] = Items[k - 1, l];
+                        }
+                    }
+
+                    i++;
+                }
+            }
         }
 
         public void DrawBoundaries()
