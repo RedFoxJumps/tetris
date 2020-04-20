@@ -6,12 +6,8 @@ using System.Threading.Tasks;
 
 namespace Models
 {
-    public abstract class Figure
+    public class Figure
     {
-        // center of rotation
-        public int CX { get; set; }
-        public int CY { get; set; }
-
         // position
         public int X { get; set; }
         public int Y { get; set; }
@@ -19,11 +15,13 @@ namespace Models
         public int LeftMarginWidth { get; set; }
 
         // figure description
-        public int[,] Points;
+        protected int[,] Points;
         public int Width { get => Points.GetUpperBound(0) + 1; }
         public int Height { get => Points.GetUpperBound(1) + 1; }
 
-        public char Square => '■';
+        /// <summary>
+        /// Occurs when figure cannot fall anymore
+        /// </summary>
         public event FigureStateHandler Stopped;
         public delegate void FigureStateHandler(object sender, FigureEventStateArgs e);
 
@@ -35,51 +33,51 @@ namespace Models
         public Figure() : this(0, 0)
         { }
 
-        public Figure(int cx, int cy, int margin = 0, int x = 0, int y = 0)
+        public Figure(int x, int y, int margin = 0)
         {
-            CX = cx;
-            CY = cy;
             X = x;
             Y = y;
             LeftMarginWidth = margin;
         }
 
-        public bool TryRotateRight(Field field)
+        public virtual bool TryRotateRight(Field field)
         {
-            for (int i = 0; i < Width / 2; i++)
-            {
-                for (int j = i; j < Width - i - 1; j++)
-                {
-                    int temp = Points[i, j];
+            int[,] res = new int[Width, Height];
 
-                    Points[i, j] = Points[Width - 1 - j, i];
-                    Points[Width - 1 - j, i] = Points[Width - 1 - i, Width - 1 - j];
-                    Points[Width - 1 - i, Width - 1 - j] = Points[j, Width - 1 - i];
-                    Points[j, Width - 1 - i] = temp;
+            for (int i = 0; i < Width; i++)
+            {
+                for (int j = 0; j < Width; j++)
+                {
+                    res[i, j] = Points[Width - 1 - j, i];
                 }
             }
+
+            Figure newfig = new Figure() { X = this.X, Y = this.Y, Points = res };
+            if (!newfig.TryMove(field, 0, 0))
+                return false;
+
+            Points = res;
 
             return true;
         }
 
-        public bool TryRotateLeft(Field field)
+        public virtual bool TryRotateLeft(Field field)
         {
-            for (int i = 0; i < Width / 2; i++)
-            {
-                for (int j = i; j < Width - i - 1; j++)
-                {
-                    int temp = Points[i, j];
+            int[,] res = new int[Width, Height];
 
-                    // move values from right to top 
-                    Points[i, j] = Points[j, Width - 1 - i];
-                    // move values from bottom to right 
-                    Points[j, Width - 1 - i] = Points[Width - 1 - i, Width - 1 - j];
-                    // move values from left to bottom 
-                    Points[Width - 1 - i, Width - 1 - j] = Points[Width - 1 - j, i];
-                    // assign temp to left 
-                    Points[Width - 1 - j, i] = temp;
+            for (int i = 0; i < Width; i++)
+            {
+                for (int j = 0; j < Height; j++)
+                {
+                    res[i, j] = Points[j, Width - 1 - i];
                 }
             }
+
+            Figure newfig = new Figure() { X = this.X, Y = this.Y, Points = res };
+            if (!newfig.TryMove(field, 0, 0))
+                return false;
+
+            Points = res;
 
             return true;
         }
@@ -99,11 +97,11 @@ namespace Models
         public void Draw()
         {
             // +1 is for field boundaries
-            ConsoleShapeDrawer.Draw(X + LeftMarginWidth + 1, Y + 1, Points, Square);
+            ConsoleShapeDrawer.Draw(X + LeftMarginWidth + 1, Y + 1, Points);
         }
 
         /// <summary>
-        /// Check the point in Field
+        /// Moves figure by x columns and y rows if possible
         /// </summary>
         /// <param name="field">field in which the figure is moving</param>
         /// <param name="x">offset in X axis</param>
@@ -128,6 +126,9 @@ namespace Models
             return true;
         }
 
+        /// <summary>
+        /// Invokes Stopped event of the figure
+        /// </summary>
         private void Stop()
         {
             Stopped?.Invoke(this, new FigureEventStateArgs(X, Y));
