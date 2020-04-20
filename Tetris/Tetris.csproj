@@ -47,6 +47,7 @@
     <Compile Include="Models\Field.cs" />
     <Compile Include="Models\Figure.cs" />
     <Compile Include="Models\FigureEventStateArgs.cs" />
+    <Compile Include="Models\FigureGenerator.cs" />
     <Compile Include="Models\IFig.cs" />
     <Compile Include="Models\JFig.cs" />
     <Compile Include="Models\LFig.cs" />
