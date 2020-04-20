@@ -115,8 +115,8 @@ namespace Models
             {
                 for (int j = 0; j < Height; j++)
                 {
-                    int newX = X + x + i;
-                    int newY = Y + y + j;
+                    int newX = X + x + j;
+                    int newY = Y + y + i;
 
                     if (Points[i, j] != 0 && !field.IsPointEligible(newX, newY)) 
                         return false;
