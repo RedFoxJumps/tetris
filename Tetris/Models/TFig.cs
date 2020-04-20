@@ -14,8 +14,6 @@ namespace Models
 
         public TFig(int x, int y, int margin) : base(1, 1, margin)
         {
-            FigureColor = ConsoleColor.Yellow;
-
             X = x;
             Y = y;  
 

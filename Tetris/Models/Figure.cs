@@ -17,7 +17,6 @@ namespace Models
         public int Y { get; set; }
 
         public int LeftMarginWidth { get; set; }
-        public ConsoleColor FigureColor { get; set; }
 
         // figure description
         public int[,] Points;
@@ -100,7 +99,7 @@ namespace Models
         public void Draw()
         {
             // +1 is for field boundaries
-            ConsoleShapeDrawer.Draw(X + LeftMarginWidth + 1, Y + 1, Points, FigureColor, Square);
+            ConsoleShapeDrawer.Draw(X + LeftMarginWidth + 1, Y + 1, Points, Square);
         }
 
         /// <summary>
