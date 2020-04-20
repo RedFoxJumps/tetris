@@ -104,13 +104,11 @@ namespace Models
         }
 
         /// <summary>
-        /// Check the point
-        /// , which is located after the last non-zero value in Figure, 
-        /// in Field
+        /// Check the point in Field
         /// </summary>
         /// <param name="field">field in which the figure is moving</param>
-        /// <param name="x">for how much to offset in X axis</param>
-        /// <param name="y">for how much to offset in Y axis</param>
+        /// <param name="x">offset in X axis</param>
+        /// <param name="y">offset in Y axis</param>
         public bool TryMove(Field field, int x, int y)
         {
             for (int i = 0; i < Width; i++) 

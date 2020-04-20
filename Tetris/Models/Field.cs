@@ -34,7 +34,7 @@ namespace Models
 
         public bool IsPointEligible(int x, int y)
         {
-            if (x > Width || y > Height || x < 0 || y < 0)
+            if (x >= Width || y >= Height || x < 0 || y < 0)
                 return false;
 
             return Items[x, y] == 0;
@@ -48,7 +48,7 @@ namespace Models
         public void Draw()
         {
             Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine(LeftMargin + "┌" + new string('—', Width) + "┐");
+            Console.WriteLine(LeftMargin + "╓" + new string('—', Width) + "╖");
             for (int i = 0; i < Height; i++)
                 Console.WriteLine(LeftMargin + "|" + new string(' ', Width) + "|");
 

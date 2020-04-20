@@ -32,18 +32,18 @@ namespace Tetris
 
         // layout
         private static int leftMarginWidth;
+        private static int nextFigureX;
+        private static int nextFigureY;
 
         // cup data
         private static int cupWidth;
         private static int cupHeight;
         private static int fallSpeed;
-        private static Cup cup;
+        private static Field field;
 
         // figures data
         private static Figure currentFigure;
         private static Figure nextFigure;
-
-        static int cntr = 0;
 
         private static void Main(string[] args)
         {
@@ -54,7 +54,13 @@ namespace Tetris
 
         private static void Init()
         {
+            #region console
+            Console.CursorVisible = false;
+            Console.ForegroundColor = ConsoleColor.White;
+            #endregion // console
+
             #region game state
+
             isOver = false;
             isDrawRequired = true;
             rotateLeft = false;
@@ -72,14 +78,7 @@ namespace Tetris
 
             #endregion // time
 
-            #region layout
-
-            Console.ForegroundColor = ConsoleColor.White;
-            leftMarginWidth = 20;
-
-            #endregion // layout
-
-            #region cup initialization
+            #region Game field initialization
             do
             {
                 Console.WriteLine("Field Width: ");
@@ -97,15 +96,20 @@ namespace Tetris
 
             timeToMove = 60.0 / fallSpeed;
 
-            cup = new Cup(cupWidth, cupHeight, leftMarginWidth);
+            leftMarginWidth = 20;
+            field = new Field(cupWidth, cupHeight, leftMarginWidth);
             #endregion
 
-            #region console
-            Console.CursorVisible = false;
-            
-            #endregion // console
+            #region layout
 
-            currentFigure = new TFig(5, 2, leftMarginWidth);
+            nextFigureX = field.Width + 2 + 5;
+            nextFigureY = 5;
+
+            #endregion // layout
+
+            nextFigure = new TFig(nextFigureX, nextFigureY, leftMarginWidth);
+            nextFigure.Stopped += (sender, e) => SwapFigures();
+            SwapFigures();
         }
 
         private static void MainLoop()
@@ -125,8 +129,6 @@ namespace Tetris
                 double deltaTime = (curr - prev).TotalSeconds;
                 prev = curr;
 
-
-
                 Update(deltaTime);
                 if (isDrawRequired)
                 {
@@ -136,6 +138,16 @@ namespace Tetris
             }
 
             thread.Abort();
+        }
+
+        private static void SwapFigures()
+        {
+            currentFigure = nextFigure;
+            currentFigure.X = field.Width / 2;
+            currentFigure.Y = 0;
+
+            nextFigure = new TFig(nextFigureX, nextFigureY , leftMarginWidth);
+            nextFigure.Stopped += (s, e) => SwapFigures();
         }
 
         private static void TimerTick(object sender, ElapsedEventArgs e)
@@ -148,10 +160,19 @@ namespace Tetris
             Console.Clear();
 
             // draw main field
-            cup.Draw();
+            field.Draw();
+            DrawNextFigure();
 
             // draw other figures
             currentFigure.Draw();
+        }
+
+        private static void DrawNextFigure()
+        {
+            Console.SetCursorPosition(nextFigureX + leftMarginWidth, nextFigureY);
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write("Next figure: ");
+            nextFigure.Draw();
         }
 
         private static void HandleEvents()
@@ -163,26 +184,26 @@ namespace Tetris
                 switch (key)
                 {
                     case ConsoleKey.Q:
-                        currentFigure.TryRotateLeft(cup);
-                        isDrawRequired = true;
-                        Console.WriteLine($"draw req {isDrawRequired}");
+                        if (currentFigure.TryRotateLeft(field))
+                            isDrawRequired = true;
                         break;
-
                     case ConsoleKey.E:
-                        isDrawRequired = true;
-                        currentFigure.TryRotateRight(cup);
-                        Console.WriteLine($"draw req {isDrawRequired}"); 
+                        if (currentFigure.TryRotateRight(field))
+                            isDrawRequired = true;
                         break;
-
 
                     case ConsoleKey.A:
+                        if (currentFigure.TryMove(field, -1, 0))
+                            isDrawRequired = true;
                         break;
                     case ConsoleKey.D:
+                        if (currentFigure.TryMove(field, 1, 0))
+                            isDrawRequired = true;
                         break;
 
-
                     case ConsoleKey.S:
-                        currentFigure.Update(cup);
+                        if (currentFigure.TryMove(field, 0, 1))
+                            isDrawRequired = true;
                         break;
 
                     default:
@@ -200,7 +221,8 @@ namespace Tetris
                 timeElapsedSinceLastMove = 0;
                 isDrawRequired = true;
 
-                currentFigure.Update(cup);
+                field.Update();
+                currentFigure.Update(field);
             }
         }
 
