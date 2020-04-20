@@ -109,7 +109,7 @@ namespace Tetris
 
             #endregion // layout
 
-            nextFigure = new TFig(nextFigureX, nextFigureY, leftMarginWidth);
+            nextFigure = FigureGenerator.GetRandomFigure(nextFigureX, nextFigureY, leftMarginWidth);
             nextFigure.Stopped += FigureStopped;
             SwapFigures();
         }
@@ -117,6 +117,7 @@ namespace Tetris
         private static void FigureStopped(object sender, FigureEventStateArgs e)
         {
             field.FillFigure(sender as Figure);
+            field.Update();
             SwapFigures();
         }
 
@@ -154,7 +155,7 @@ namespace Tetris
             currentFigure.X = field.Width / 2;
             currentFigure.Y = 0;
 
-            nextFigure = new TFig(nextFigureX, nextFigureY, leftMarginWidth);
+            nextFigure = FigureGenerator.GetRandomFigure(nextFigureX, nextFigureY, leftMarginWidth);
             nextFigure.Stopped += FigureStopped;
         }
 
@@ -235,7 +236,6 @@ namespace Tetris
                 timeElapsedSinceLastMove = 0;
                 isDrawRequired = true;
 
-                field.Update();
                 currentFigure.Update(field);
             }
         }
