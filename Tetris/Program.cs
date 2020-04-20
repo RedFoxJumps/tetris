@@ -18,12 +18,14 @@ namespace Tetris
         private static bool isDrawRequired;
         private static bool rotateRight;
         private static bool rotateLeft;
+        private static ConsoleKey? key = null;
+        private static object lockObj = new object();
 
         // time handle
         private static double timeScale = 1;
         private static int estimatedFps;
         private static double timePerFrame;
-        
+
         private static double timeElapsedSinceLastStatisticsUpdate;
         private static double timeToUpdateStatistics;
 
@@ -55,7 +57,6 @@ namespace Tetris
         private static void Init()
         {
             #region console
-            Console.CursorVisible = false;
             Console.ForegroundColor = ConsoleColor.White;
             #endregion // console
 
@@ -102,13 +103,20 @@ namespace Tetris
 
             #region layout
 
+            Console.CursorVisible = false;
             nextFigureX = field.Width + 2 + 5;
-            nextFigureY = 5;
+            nextFigureY = 1;
 
             #endregion // layout
 
             nextFigure = new TFig(nextFigureX, nextFigureY, leftMarginWidth);
-            nextFigure.Stopped += (sender, e) => SwapFigures();
+            nextFigure.Stopped += FigureStopped;
+            SwapFigures();
+        }
+
+        private static void FigureStopped(object sender, FigureEventStateArgs e)
+        {
+            field.FillFigure(sender as Figure);
             SwapFigures();
         }
 
@@ -120,7 +128,7 @@ namespace Tetris
 
             DateTime prev = DateTime.Now, curr;
 
-            System.Threading.Thread thread = new System.Threading.Thread(HandleEvents);
+            System.Threading.Thread thread = new System.Threading.Thread(HandleEvents) { Name = "KeyPressHandleThread" };
             thread.Start();
 
             while (!isOver)
@@ -146,8 +154,8 @@ namespace Tetris
             currentFigure.X = field.Width / 2;
             currentFigure.Y = 0;
 
-            nextFigure = new TFig(nextFigureX, nextFigureY , leftMarginWidth);
-            nextFigure.Stopped += (s, e) => SwapFigures();
+            nextFigure = new TFig(nextFigureX, nextFigureY, leftMarginWidth);
+            nextFigure.Stopped += FigureStopped;
         }
 
         private static void TimerTick(object sender, ElapsedEventArgs e)
@@ -161,61 +169,67 @@ namespace Tetris
 
             // draw main field
             field.Draw();
-            DrawNextFigure();
 
-            // draw other figures
-            currentFigure.Draw();
-        }
-
-        private static void DrawNextFigure()
-        {
+            // next figure
             Console.SetCursorPosition(nextFigureX + leftMarginWidth, nextFigureY);
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write("Next figure: ");
             nextFigure.Draw();
+
+            // draw current figure
+            currentFigure.Draw();
         }
 
         private static void HandleEvents()
         {
             while (true)
             {
-                var key = Console.ReadKey(true).Key;
+                key = Console.ReadKey(true).Key;
+            }
+        }
 
-                switch (key)
-                {
-                    case ConsoleKey.Q:
-                        if (currentFigure.TryRotateLeft(field))
-                            isDrawRequired = true;
-                        break;
-                    case ConsoleKey.E:
-                        if (currentFigure.TryRotateRight(field))
-                            isDrawRequired = true;
-                        break;
+        private static void HandleKeyPress(ConsoleKey? key)
+        {
+            switch (key)
+            {
+                case ConsoleKey.Q:
+                    if (currentFigure.TryRotateLeft(field))
+                        isDrawRequired = true;
+                    break;
+                case ConsoleKey.E:
+                    if (currentFigure.TryRotateRight(field))
+                        isDrawRequired = true;
+                    break;
 
-                    case ConsoleKey.A:
-                        if (currentFigure.TryMove(field, -1, 0))
-                            isDrawRequired = true;
-                        break;
-                    case ConsoleKey.D:
-                        if (currentFigure.TryMove(field, 1, 0))
-                            isDrawRequired = true;
-                        break;
+                case ConsoleKey.A:
+                    if (currentFigure.TryMove(field, -1, 0))
+                        isDrawRequired = true;
+                    break;
+                case ConsoleKey.D:
+                    if (currentFigure.TryMove(field, 1, 0))
+                        isDrawRequired = true;
+                    break;
 
-                    case ConsoleKey.S:
-                        if (currentFigure.TryMove(field, 0, 1))
-                            isDrawRequired = true;
-                        break;
+                case ConsoleKey.S:
+                    if (currentFigure.TryMove(field, 0, 1))
+                        isDrawRequired = true;
+                    break;
 
-                    default:
-                        break;
-                }
+                default:
+                    break;
             }
         }
 
         private static void Update(double deltaTime)
         {
-
             timeElapsedSinceLastMove += deltaTime;
+
+            if (key != null)
+            {
+                HandleKeyPress(key);
+                key = null;
+            }
+
             if (timeElapsedSinceLastMove >= timeToMove)
             {
                 timeElapsedSinceLastMove = 0;
