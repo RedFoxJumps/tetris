@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\ConsoleShapeDrawer.cs" />
     <Compile Include="Models\Field.cs" />
     <Compile Include="Models\Figure.cs" />
     <Compile Include="Models\FigureEventStateArgs.cs" />

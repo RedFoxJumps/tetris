@@ -25,6 +25,8 @@ namespace Models
         public int Height { get => Points.GetUpperBound(1) + 1; }
 
         public char Square => '■';
+        public event FigureStateHandler Stopped;
+        public delegate void FigureStateHandler(object sender, FigureEventStateArgs e);
 
         public int this[int i, int j]
         {
@@ -97,32 +99,41 @@ namespace Models
         /// </summary>
         public void Draw()
         {
-            Console.ForegroundColor = FigureColor;
-            for (int i = 0; i < Width; i++)
+            // +1 is for field boundaries
+            ConsoleShapeDrawer.Draw(X + LeftMarginWidth + 1, Y + 1, Points, FigureColor, Square);
+        }
+
+        /// <summary>
+        /// Check the point
+        /// , which is located after the last non-zero value in Figure, 
+        /// in Field
+        /// </summary>
+        /// <param name="field">field in which the figure is moving</param>
+        /// <param name="x">for how much to offset in X axis</param>
+        /// <param name="y">for how much to offset in Y axis</param>
+        public bool TryMove(Field field, int x, int y)
+        {
+            for (int i = 0; i < Width; i++) 
             {
                 for (int j = 0; j < Height; j++)
                 {
-                    if (Points[i, j] == 0)
-                        continue;
+                    int newX = X + x + i;
+                    int newY = Y + y + j;
 
-                    Console.CursorLeft = X + LeftMarginWidth + j + 1;
-                    Console.CursorTop = Y + i + 1;
-                    Console.Write(Square);
+                    if (Points[i, j] != 0 && !field.IsPointEligible(newX, newY)) 
+                        return false;
                 }
             }
-        }
 
-        public bool TryMove(Field field, int x, int y)
-        {
             X += x;
             Y += y;
 
             return true;
         }
 
-        public void Stop()
-        { 
-            
+        private void Stop()
+        {
+            Stopped?.Invoke(this, new FigureEventStateArgs(X, Y));
         }
     }
 }
