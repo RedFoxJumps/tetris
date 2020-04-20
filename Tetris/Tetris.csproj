@@ -47,7 +47,13 @@
     <Compile Include="Models\Field.cs" />
     <Compile Include="Models\Figure.cs" />
     <Compile Include="Models\FigureEventStateArgs.cs" />
+    <Compile Include="Models\IFig.cs" />
+    <Compile Include="Models\JFig.cs" />
+    <Compile Include="Models\LFig.cs" />
+    <Compile Include="Models\OFig.cs" />
+    <Compile Include="Models\SFig.cs" />
     <Compile Include="Models\TFig.cs" />
+    <Compile Include="Models\ZFig.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
